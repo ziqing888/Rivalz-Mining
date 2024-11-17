@@ -15,7 +15,8 @@
     "inquirer": "^8.2.0",
     "moment": "^2.29.4",
     "cron": "^2.2.0",
-    "winston": "^3.8.2"
+    "winston": "^3.8.2",
+    "readline-sync": "^1.4.10"
   },
   "devDependencies": {}
 }
