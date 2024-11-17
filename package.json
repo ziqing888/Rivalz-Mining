@@ -1,0 +1,21 @@
+{
+  "name": "fragmentz-claimer",
+  "version": "1.0.0",
+  "description": "A tool to claim Fragmentz tokens via a smart contract, supporting automation and balance checks.",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main.js"
+  },
+  "keywords": ["blockchain", "smart-contract", "claimer", "Fragmentz", "automation"],
+  "author": "qklxsqf",
+  "license": "MIT",
+  "dependencies": {
+    "ethers": "^6.0.0",
+    "colors": "^1.4.0",
+    "inquirer": "^8.2.0",
+    "moment": "^2.29.4",
+    "cron": "^2.2.0",
+    "winston": "^3.8.2"
+  },
+  "devDependencies": {}
+}
