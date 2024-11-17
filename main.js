@@ -2,7 +2,7 @@ require('colors');
 const fs = require('fs');
 const readlineSync = require('readline-sync');
 const inquirer = require('inquirer');
-const { displayHeader, checkBalance, RPC_URL, dynamicMessage } = require('./src/utils');
+const { displayHeader, checkBalance, RPC_URL } = require('./src/utils');
 const { createWallet, createContract } = require('./src/wallet');
 const { claimFragmentz } = require('./src/claim');
 const { JsonRpcProvider, ethers } = require('ethers');
@@ -10,7 +10,7 @@ const { CronJob } = require('cron');
 const moment = require('moment');
 const config = require('./src/config');
 
-const CONTRACT_ADDRESS = config.contractAddress; // 合约地址
+const CONTRACT_ADDRESS = config.contractAddress;
 
 let recurringSettings = {}; // 定期任务配置
 
@@ -26,7 +26,7 @@ const claimProcess = async (privateKeys, provider, numClaims) => {
       await claimFragmentz(contract, numClaims);
       console.log(`✅ 地址 ${wallet.address} 成功领取 ${numClaims} 个 Fragmentz`.green.bold);
     } catch (error) {
-      console.error(`❌ 地址 ${privateKey} 领取失败：${error.message}`.red.bold);
+      console.error(`❌ 地址 ${wallet.address} 领取失败：${error.message}`.red.bold);
     }
   }
 };
@@ -51,8 +51,6 @@ const main = async () => {
   const provider = new JsonRpcProvider(RPC_URL);
 
   while (true) {
-    await dynamicMessage('欢迎进入 Rivalz Fragmentz 领取工具！\n', 'cyan', 80);
-
     const { action } = await inquirer.prompt([
       {
         type: 'list',
@@ -67,20 +65,25 @@ const main = async () => {
     ]);
 
     if (action === '2') {
-      await dynamicMessage('再见！祝你愉快！✨', 'green', 100);
+      console.log('再见！祝你愉快！✨'.green.bold);
       break;
     }
 
     try {
       if (action === '0') {
+        console.log('🔍 正在查看钱包余额...'.cyan.bold);
         const privateKeys = JSON.parse(fs.readFileSync('privateKeys.json', 'utf-8'));
         for (const privateKey of privateKeys) {
           const wallet = createWallet(privateKey, provider);
           const balance = await checkBalance(provider, wallet.address);
           console.log(`💳 地址：${wallet.address}`.yellow.bold);
           console.log(`💰 余额：${ethers.formatEther(balance)} ETH`.cyan.bold);
+          if (parseFloat(ethers.formatEther(balance)) === 0) {
+            console.log('⚠️ 此地址余额为零，请确保有足够的 ETH 用于交易。'.red.bold);
+          }
         }
       } else if (action === '1') {
+        console.log('💰 领取 Fragmentz 代币...'.cyan.bold);
         const privateKeys = JSON.parse(fs.readFileSync('privateKeys.json', 'utf-8'));
         const numClaims = readlineSync.questionInt('请输入领取的 Fragmentz 数量：'.magenta);
 
@@ -96,6 +99,8 @@ const main = async () => {
 
         if (isRecurring) {
           await setupRecurringClaim(privateKeys, provider, numClaims);
+          console.log('🕒 自动任务已启动，每 12 小时运行一次。'.yellow.bold);
+          console.log('🔔 要停止任务，请手动终止程序。'.magenta.bold);
         }
       }
     } catch (error) {
@@ -105,3 +110,4 @@ const main = async () => {
 };
 
 main();
+
